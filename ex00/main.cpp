@@ -8,7 +8,7 @@ int main(int ac, char** av) {
     std::fstream                inputFile(av[1]);
     std::fstream                csvFile("../data.csv");
     std::map<struct tm, int>    map;
-    std::map<struct tm, int>    data;
+    //std::map<struct tm, int>    data;
     std::string                 line;
 
     if (ac != 2) {
@@ -20,9 +20,11 @@ int main(int ac, char** av) {
         std::cerr << "Error: could not open file." << std::endl;
         return 1;
     }
-    getline(inputFile, line)
+    getline(inputFile, line);
+    int i = 0;
     while (getline(inputFile, line)) {
-        map = BitcoinExchange::parseMap(line);
+        BitcoinExchange::parseMap(line, map, i);
+        i++
     }
     BitcoinExchange::calculate();
 
