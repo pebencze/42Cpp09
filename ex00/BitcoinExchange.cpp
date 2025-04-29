@@ -15,6 +15,7 @@ BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) {
 
 BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const & src) {
 	if (this != &src) {
+        this->database = src.database;
 	}
 	return *this;
 }
