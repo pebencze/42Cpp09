@@ -5,13 +5,13 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -MMD
 SRCS = BitcoinExchange.cpp main.cpp
 OBJ_DIR = objs
 OBJS := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
-DEPS = BitcoinExchange.hpp
-
-$(OBJ_DIR)/%.o: %.cpp $(DEPS)
-	@mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+INCL = BitcoinExchange.hpp
 
 all: $(NAME)
+
+$(OBJ_DIR)/%.o: %.cpp $(INCL)
+	@mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
