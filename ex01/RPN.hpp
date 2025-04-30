@@ -12,11 +12,12 @@ class RPN {
         RPN & operator=(RPN const & src);
 
         void calculate(char *input);
-        void digestInput(char *input);
-        void validateInput(char *input);
-        void handleOperation(char op);
-        void printResult(void);
-
+        
     private:
         std::stack<int> _stack;
+
+        void _digestInput(char *input);
+        void _validateInput(char *input);
+        void _handleOperation(char op);
+        void _printResult(void);
 };

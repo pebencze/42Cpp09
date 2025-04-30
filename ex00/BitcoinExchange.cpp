@@ -15,7 +15,7 @@ BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) {
 
 BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const & src) {
 	if (this != &src) {
-        this->database = src.database;
+        this->_database = src._database;
 	}
 	return *this;
 }
@@ -33,14 +33,14 @@ void BitcoinExchange::run(char *fileName){
         throw std::runtime_error("Error: could not open a file.");
     }
 
-    this->parseCsvFile(csvFile);
-	this->parseInputFile(inputFile);
+    this->_parseCsvFile(csvFile);
+	this->_parseInputFile(inputFile);
 
     inputFile.close();
     csvFile.close();
 }
 
-void BitcoinExchange::parseCsvFile(std::ifstream &csvFile) {
+void BitcoinExchange::_parseCsvFile(std::ifstream &csvFile) {
     std::string line;
     std::string date;
     std::string value;
@@ -53,12 +53,12 @@ void BitcoinExchange::parseCsvFile(std::ifstream &csvFile) {
             date.erase(std::remove_if(date.begin(), date.end(), static_cast<int(*)(int)>(std::isspace)), date.end());
             value.erase(std::remove_if(value.begin(), value.end(), static_cast<int(*)(int)>(std::isspace)), value.end());
             int dateInt = std::atoi((date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2)).c_str());
-            database.insert(std::make_pair(dateInt, std::strtod(value.c_str(), NULL)));
+            _database.insert(std::make_pair(dateInt, std::strtod(value.c_str(), NULL)));
         }
     }
 }
 
-int BitcoinExchange::checkDate(std::string dateStr) {
+int BitcoinExchange::_checkDate(std::string dateStr) {
 	std::time_t t = std::time(0);
 	std::tm* now = std::localtime(&t);
 	int year = now->tm_year + 1900;
@@ -89,7 +89,7 @@ int BitcoinExchange::checkDate(std::string dateStr) {
     return date;
 }
 
-double BitcoinExchange::checkValue(std::string valueStr) {
+double BitcoinExchange::_checkValue(std::string valueStr) {
     double value;
     errno = 0;
     char *endptr;
@@ -106,7 +106,7 @@ double BitcoinExchange::checkValue(std::string valueStr) {
     return value;
 }
 
-void BitcoinExchange::parseInputFile(std::ifstream &inputFile) {
+void BitcoinExchange::_parseInputFile(std::ifstream &inputFile) {
     std::string date;
 	std::string line;
 
@@ -120,9 +120,9 @@ void BitcoinExchange::parseInputFile(std::ifstream &inputFile) {
 		std::string dateStr, valueStr;
 		try {
 			if (std::getline(ss, dateStr, '|') && std::getline(ss, valueStr)) {
-				int date = checkDate(dateStr);
-                double value = checkValue(valueStr);
-                matchWithDatabase(date, value);
+				int date = _checkDate(dateStr);
+                double value = _checkValue(valueStr);
+                _matchWithDatabase(date, value);
 			} else {
 				 throw std::invalid_argument("Error: bad input => " + line);
 			}
@@ -132,8 +132,8 @@ void BitcoinExchange::parseInputFile(std::ifstream &inputFile) {
 	}
 }
 
-void BitcoinExchange::matchWithDatabase(int date, double value) {
-    std::map<int, double>::iterator it = database.lower_bound(date);
+void BitcoinExchange::_matchWithDatabase(int date, double value) {
+    std::map<int, double>::iterator it = _database.lower_bound(date);
     int year = date / 10000;
     int month = (date / 100) % 100;
     int day = date % 100;
@@ -144,9 +144,9 @@ void BitcoinExchange::matchWithDatabase(int date, double value) {
         << (day < 10 ? "0" : "") << day;
     
 
-    if (it == database.end())
+    if (it == _database.end())
         it--;
-    if (it == database.begin())
+    if (it == _database.begin())
         throw std::invalid_argument("Error: no lower bound for date => " + formattedDate.str());
     
     
