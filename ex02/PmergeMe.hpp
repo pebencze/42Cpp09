@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
+#include <ctime>
+#include <string.h>
 
 class PmergeMe {
     public:
@@ -13,9 +15,9 @@ class PmergeMe {
         ~PmergeMe();
         PmergeMe(PmergeMe const & src);
         PmergeMe & operator=(PmergeMe const & rhs);
-    
+
         void sort();
-    
+
     private:
         PmergeMe();
         std::vector<int> _vector;

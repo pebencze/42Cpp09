@@ -42,14 +42,24 @@ PmergeMe & PmergeMe::operator=(PmergeMe const & rhs) {
 
 void PmergeMe::sort() {
     // vector
-    std::cout << "Before: " << _vector << std::endl; 
+    std::cout << "Before: " << _vector << std::endl;
+	clock_t start = std::clock();
     _sortVector();
-    std::cout << "After: " << _vector << std::endl;
+
+	clock_t end = std::clock();
+	std::cout << "After: " << _vector << std::endl;
+	long cpuMicroSeconds = end - start;
+	std::cout << "Time to process a range of 3000 elements with std::[...]: "<< cpuMicroSeconds << " us." << std::endl;
 
     // deque
-    //std::cout << "Before: " << _deque << std::endl; 
+	// start = std::clock();
+    //std::cout << "Before: " << _deque << std::endl;
     // _sortDeque();
+	//
+	// end = std::clock();
     //std::cout << "After: " << _deque << std::endl;
+	// cpuMicroSeconds = end - start;
+	// std::cout << cpuMicroSeconds << std::endl;
 }
 
 void PmergeMe::_parseInput(int argc, char **argv) {
@@ -61,7 +71,7 @@ void PmergeMe::_parseInput(int argc, char **argv) {
         if (arg.find_first_not_of("0123456789") != std::string::npos) {
             throw std::invalid_argument("Error: invalid argument => " + arg);
         }
-        if ((arg.length() == 10 && std::strcmp(arg.c_str(), "2147483647") > 0) || (arg.length() > 10)) {
+        if ((arg.length() == 10 && strcmp(arg.c_str(), "2147483647") > 0) || (arg.length() > 10)) {
             throw std::invalid_argument("Error: argument out of range => " + arg);
         }
         int num = std::atoi(arg.c_str());
