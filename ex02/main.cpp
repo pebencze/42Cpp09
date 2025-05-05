@@ -6,7 +6,7 @@
 int main(int argc, char **argv) {
     try {
         PmergeMe pmergeMe(argc, argv);
-        pmergeMe.sort();
+        pmergeMe.run();
     } catch(std::exception &e) {
         std::cout << e.what() << std::endl;
         return 1;

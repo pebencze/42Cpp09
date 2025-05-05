@@ -1,46 +1,39 @@
 
 #include "PmergeMe.hpp"
 
-std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs) {
-    std::vector<int>::const_iterator it;
-    for (it = rhs.begin(); it != rhs.end(); it++) {
-        out << *it << " ";
-    }
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const std::deque<int>& rhs) {
-    std::deque<int>::const_iterator it;
-    for (it = rhs.begin(); it != rhs.end(); it++) {
-        out << *it << " ";
-    }
-    return out;
+template <typename Container>
+std::ostream& operator<<(std::ostream& out, const Container& rhs) {
+	typename Container::const_iterator it;
+	for (it = rhs.begin(); it != rhs.end(); it++) {
+		out << *it << " ";
+	}
+	return out;
 }
 
 PmergeMe::PmergeMe() {}
 
 PmergeMe::PmergeMe(int argc, char **argv) {
-    if (argc < 2) {
-        throw std::invalid_argument("Error: no arguments provided");
-    }
-    _parseInput(argc, argv);
+	if (argc < 2) {
+		throw std::invalid_argument("Error: no arguments provided");
+	}
+	_parseInput(argc, argv);
 }
 
 PmergeMe::~PmergeMe() {}
 
 PmergeMe::PmergeMe(PmergeMe const & src) {
-    *this = src;
+	*this = src;
 }
 
 PmergeMe & PmergeMe::operator=(PmergeMe const & rhs) {
-    if (this != &rhs) {
-        this->_deque = rhs._deque;
-        this->_vector = rhs._vector;
-    }
-    return *this;
+	if (this != &rhs) {
+		this->_deque = rhs._deque;
+		this->_vector = rhs._vector;
+	}
+	return *this;
 }
 
-void PmergeMe::sort() {
+void PmergeMe::run() {
     // vector
     std::cout << "Before: " << _vector << std::endl;
 	clock_t start = std::clock();
@@ -80,6 +73,7 @@ void PmergeMe::_parseInput(int argc, char **argv) {
     }
 }
 
+template <typename Container>
 void PmergeMe::_sortVector() {
     // make pairs, sort them
     std::vector<std::pair<int, int> > pairs;

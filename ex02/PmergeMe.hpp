@@ -9,6 +9,7 @@
 #include <ctime>
 #include <string.h>
 
+template <typename Container>
 class PmergeMe {
     public:
         PmergeMe(int argc, char **argv);
@@ -16,7 +17,7 @@ class PmergeMe {
         PmergeMe(PmergeMe const & src);
         PmergeMe & operator=(PmergeMe const & rhs);
 
-        void sort();
+        void run();
 
     private:
         PmergeMe();
@@ -28,5 +29,6 @@ class PmergeMe {
         void _sortDeque();
 };
 
-std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs);
-std::ostream& operator<<(std::ostream& out, const std::deque<int>& rhs);
+template <typename Container>
+std::ostream& operator<<(std::ostream& out, const Container& rhs);
+// std::ostream& operator<<(std::ostream& out, const std::deque<int>& rhs);
