@@ -180,6 +180,10 @@ void PmergeMe::_sortVector() {
 		return ;
 	} else {
 		// perform binary search using Jacobsthal numbers
+		int index =;
+		int jacobsthal =;
+
+		// if not jacobsthal, use binary search in reverse order
 
 	}
 }
@@ -189,4 +193,12 @@ void PmergeMe::_pushBackRange(std::vector<int>::iterator start, std::vector<int>
 	for (std::vector<int>::iterator it = start; it != end; it++) {
 		vec.push_back(*it);
 	}
+}
+
+int PmergeMe::_jacobsthal(int n) {
+	if (n == 0)
+		return 0;
+	if (n == 1)
+		return 1;
+	return _jacobsthal(n - 1) + 2 * _jacobsthal(n - 2);
 }
