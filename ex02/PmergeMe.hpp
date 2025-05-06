@@ -9,7 +9,6 @@
 #include <ctime>
 #include <string.h>
 
-template <typename Container>
 class PmergeMe {
     public:
         PmergeMe(int argc, char **argv);
@@ -26,9 +25,11 @@ class PmergeMe {
 
         void _parseInput(int argc, char **argv);
         void _sortVector();
-        void _sortDeque();
+		// void _sort();
+        // void _sortDeque();
+		void _swapPairs(int distance,  std::vector<int>::iterator offset);
 };
 
-template <typename Container>
-std::ostream& operator<<(std::ostream& out, const Container& rhs);
+// template <typename Container>
+std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs);
 // std::ostream& operator<<(std::ostream& out, const std::deque<int>& rhs);

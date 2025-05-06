@@ -1,9 +1,8 @@
 
 #include "PmergeMe.hpp"
 
-template <typename Container>
-std::ostream& operator<<(std::ostream& out, const Container& rhs) {
-	typename Container::const_iterator it;
+std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs) {
+	std::vector<int>::const_iterator it;
 	for (it = rhs.begin(); it != rhs.end(); it++) {
 		out << *it << " ";
 	}
@@ -73,50 +72,94 @@ void PmergeMe::_parseInput(int argc, char **argv) {
     }
 }
 
-template <typename Container>
+// void PmergeMe::_sortVector() {
+//     // make pairs, sort them
+//     std::vector<std::pair<int, int> > pairs;
+//     for (size_t i = 0; i < (_vector.size() - 1); i += 2) {
+//         std::pair<int,int> newPair = std::make_pair(std::min(_vector[i], _vector[i + 1]), std::max(_vector[i], _vector[i + 1]));
+//         pairs.push_back(newPair);
+//     }
+//     // if size is unequal, add an extra number
+//     if (_vector.size() % 2 == 1) {
+//         // TODO check if it functions with several int maxes -> maybe change to -1
+//         pairs.push_back(std::make_pair(_vector.back(), -1));
+//     }
+
+//     // create clusters for smaller and larger elements
+//     std::vector<int> larger, smaller;
+//     for (size_t i = 0; i < pairs.size(); i++) {
+//         std::pair<int, int> p = pairs[i];
+//         smaller.push_back(p.first);
+//         if (p.second != -1) {
+//             larger.push_back(p.second);
+//         }
+//     }
+
+//     // // sort larger elements
+//     std::sort(larger.begin(), larger.end());
+
+//     // insert smallest element, remove it from the smaller cluster
+//     std::vector<int> sorted;
+//     sorted.push_back(smaller[0]);
+//     smaller.erase(smaller.begin());
+
+//     // insert elements from the clusters into the sorted vector
+//     for (size_t i = 0; i < larger.size(); i++) {
+//         int elem = larger[i];
+//         std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
+//         sorted.insert(index, elem);
+//     }
+//     for (size_t i = 0; i < smaller.size(); i++) {
+//         int elem = smaller[i];
+//         std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
+//         sorted.insert(index, elem);
+//     }
+
+//     // replace original with sorted vector
+//     _vector = sorted;
+// }
+
+void PmergeMe::_swapPairs(int distance, std::vector<int>::iterator offset) {
+	// swap pairs
+	for (int i = 0; i < distance; i++) {
+		std::swap(*(offset + i), *(offset + distance + i));
+	}
+}
+
 void PmergeMe::_sortVector() {
-    // make pairs, sort them
-    std::vector<std::pair<int, int> > pairs;
-    for (size_t i = 0; i < (_vector.size() - 1); i += 2) {
-        std::pair<int,int> newPair = std::make_pair(std::min(_vector[i], _vector[i + 1]), std::max(_vector[i], _vector[i + 1]));
-        pairs.push_back(newPair);
-    }
-    // if size is unequal, add an extra number
-    if (_vector.size() % 2 == 1) {
-        // TODO check if it functions with several int maxes -> maybe change to -1
-        pairs.push_back(std::make_pair(_vector.back(), -1));
-    }
+	static int unitSize = 1;
+	// dividing into pairs (merge)
+	int unitCount = _vector.size() / unitSize;
+	if (unitSize > (int)_vector.size() / 2) // base case
+		return ;
 
-    // create clusters for smaller and larger elements
-    std::vector<int> larger, smaller;
-    for (size_t i = 0; i < pairs.size(); i++) {
-        std::pair<int, int> p = pairs[i];
-        smaller.push_back(p.first);
-        if (p.second != -1) {
-            larger.push_back(p.second);
-        }
-    }
+	bool isOdd = unitCount % 2;
 
-    // // sort larger elements
-    std::sort(larger.begin(), larger.end());
+	std::vector<int>::iterator start = _vector.begin();
+	std::vector<int>::iterator end = _vector.begin() + (unitCount * unitSize) - (isOdd * unitSize);
 
-    // insert smallest element, remove it from the smaller cluster
-    std::vector<int> sorted;
-    sorted.push_back(smaller[0]);
-    smaller.erase(smaller.begin());
+	for (std::vector<int>::iterator it = start; it != end; it += (unitSize * 2)) {
+		// sort pairs
+		int rightMostOfPair1 = unitSize - 1;
+		int rightMostOfPair2 = unitSize * 2 - 1;
+		if (*(it + rightMostOfPair1) > *(it + rightMostOfPair2))
+			_swapPairs(unitSize, it);
+	}
+	unitSize *= 2;
+	// recursion
+	_sortVector();
 
-    // insert elements from the clusters into the sorted vector
-    for (size_t i = 0; i < larger.size(); i++) {
-        int elem = larger[i];
-        std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
-        sorted.insert(index, elem);
-    }
-    for (size_t i = 0; i < smaller.size(); i++) {
-        int elem = smaller[i];
-        std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
-        sorted.insert(index, elem);
-    }
+	// // createSequence();
+	// std::vector<int> main;
+	// std::vector<int> pend;
 
-    // replace original with sorted vector
-    _vector = sorted;
+	// for (int i = 0; i < _vector.size(); i++) {
+	// 	if (i % unitSize == 0) {
+	// 		pend.push_back(_vector[i]);
+	// 	} else {
+	// 		main.push_back(_vector[i]);
+	// 	}
+	// }
+
+	// insert();
 }
