@@ -28,6 +28,7 @@ class PmergeMe {
 		// void _sort();
         // void _sortDeque();
 		void _swapPairs(int distance,  std::vector<int>::iterator offset);
+		void _pushBackRange(std::vector<int>::iterator start, std::vector<int>& vec, int unitSize);
 };
 
 // template <typename Container>

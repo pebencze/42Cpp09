@@ -136,7 +136,8 @@ void PmergeMe::_sortVector() {
 	bool isOdd = unitCount % 2;
 
 	std::vector<int>::iterator start = _vector.begin();
-	std::vector<int>::iterator end = _vector.begin() + (unitCount * unitSize) - (isOdd * unitSize);
+	int sizeWithoutLeftover = (unitCount * unitSize) - (isOdd * unitSize);
+	std::vector<int>::iterator end = _vector.begin() + sizeWithoutLeftover;
 
 	for (std::vector<int>::iterator it = start; it != end; it += (unitSize * 2)) {
 		// sort pairs
@@ -147,19 +148,33 @@ void PmergeMe::_sortVector() {
 	}
 	unitSize *= 2;
 	// recursion
-	_sortVector();
+	// _sortVector();
+	unitSize /= 2;
 
-	// // createSequence();
-	// std::vector<int> main;
-	// std::vector<int> pend;
+	// create sequences
+	std::vector<int> main; // smallest + all larger
+	std::vector<int> pend; // all smaller + odd element
 
-	// for (int i = 0; i < _vector.size(); i++) {
-	// 	if (i % unitSize == 0) {
-	// 		pend.push_back(_vector[i]);
-	// 	} else {
-	// 		main.push_back(_vector[i]);
-	// 	}
-	// }
+	start = _vector.begin();
+	end = _vector.end();
 
-	// insert();
+	int i = 0;
+	for (std::vector<int>::iterator it = start + unitSize; it != end; it += unitSize) {
+		if (it == start || i % 2 == 1)
+			_pushBackRange(it, main, unitSize);
+		else
+			_pushBackRange(it, pend, unitSize);
+		i++;
+	}
+
+	std::cout << "main: " << main << std::endl;
+	std::cout << "pend: " << pend << std::endl;
+	// insert using Jacobsthal numbers;
+}
+
+void PmergeMe::_pushBackRange(std::vector<int>::iterator start, std::vector<int>& vec, int unitSize) {
+	std::vector<int>::iterator end = start + unitSize;
+	for (std::vector<int>::iterator it = start; it != end; it++) {
+		vec.push_back(*it);
+	}
 }
