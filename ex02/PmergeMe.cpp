@@ -170,6 +170,18 @@ void PmergeMe::_sortVector() {
 	std::cout << "main: " << main << std::endl;
 	std::cout << "pend: " << pend << std::endl;
 	// insert using Jacobsthal numbers;
+
+	if (pend.empty())
+		return ;
+	if (pend.size() == 1) {
+		// perform binary search
+		std::vector<int>::iterator index = std::lower_bound(main.begin(), main.end(), pend[0]);
+		main.insert(index, pend[0]);
+		return ;
+	} else {
+		// perform binary search using Jacobsthal numbers
+
+	}
 }
 
 void PmergeMe::_pushBackRange(std::vector<int>::iterator start, std::vector<int>& vec, int unitSize) {
