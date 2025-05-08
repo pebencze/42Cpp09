@@ -9,14 +9,18 @@ STL in CPP.
 ## Ex03 - Merge-insertion sort (Ford-Johnson algorithm)
 The [merge-insertion](https://en.wikipedia.org/wiki/Merge-insertion_sort) sorting algorithm was developed by Lester Ford and Selmer Johnson in 1959. It minimizes the amount of comparisions during sorting and therefore it has the best worst-case number of comparisions for a small list. It is a combination of mergeing and insertion. The insertion happens via binary search and is optimized by the [Jacobsthal numbers](https://en.wikipedia.org/wiki/Jacobsthal_number).
 
-The key point is that it costs the same to perform binary search on a list of `N = 2^K` as on a list of `N = 2^(K+1)-1` => e.g. inserting element 8 has the same cost as inserting elements 9 - 15.
+The key point is that it costs the same to perform binary search on a list of `N = 2^K` as on a list of `N = 2^(K+1)-1` => e.g. inserting element 8 has the same cost as inserting elements 9 - 15. Because Jacobsthal numbers grow more slowly than powers of two, they give a spacing that allows binary-like insertion but with fewer comparisons.
+jacobsthal Sequence:
+```bash
+	J0​=0, J1​=1, Jn​=Jn−1​+2Jn−2
+```
 
 ### Steps
 1. Given an unsorted list, group the list into pairs.
 - recursively increase the size of the pairs
 (from 1 elementSize until elementSize <= n / 2)
 - sort them by the biggest number (rightmost)
-- refer to the smallest element as `a` and to the biggest as `b`
+- refer to the biggest element as `a` and to the smallest as `b`
 - depending on the index call them b1 a1 b2 a2 b3 a3 ...
 - if there is an odd element, leave it at the end
 
