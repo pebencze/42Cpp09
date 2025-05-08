@@ -29,7 +29,8 @@ class PmergeMe {
         // void _sortDeque();
 		void _swapPairs(int distance,  std::vector<int>::iterator offset);
 		void _pushBackRange(std::vector<int>::iterator start, std::vector<int>& vec, int unitSize);
-};
+		int _jacobsthalRecursive(int n);
+	};
 
 // template <typename Container>
 std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs);

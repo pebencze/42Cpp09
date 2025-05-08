@@ -181,17 +181,45 @@ void PmergeMe::_sortVector() {
 		return ;
 	} else {
 		// perform binary search using Jacobsthal numbers
+		int insertionsDone = 0;
 		for (int n = 2;;n++) {
 			int currJacobsthal = _jacobsthalRecursive(n);
 			int prevJacobsthal = _jacobsthalRecursive(currJacobsthal - 1);
-			int areaOfSearch =;
+			int areaOfSearch = currJacobsthal + insertionsDone;
 			int NbOfInsertions = currJacobsthal - prevJacobsthal;
-			if (pend.size() < NbOfInsertions)
+			if ((int)pend.size() < NbOfInsertions)
 				break; // TODO insert in reverse order
-
+			std::vector<int>::iterator pendIterator = pend.begin() + NbOfInsertions - 1;
+			while (insertionsDone < NbOfInsertions) {
+				std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *pendIterator);
+				main.insert(index, *pendIterator);
+				pendIterator--;
+				pend.erase(pendIterator + 1);
+				insertionsDone++;
+			}
 		}
 
 		// if not jacobsthal, use binary search in reverse order
+		insertionsDone = 0;
+		for (std::vector<int>::reverse_iterator rit = pend.rbegin(); rit != pend.rend(); rit++) {
+			// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
+			int areaOfSearch = main.size() - insertionsDone - 1; // TODO maybe add plus 1 for odd element
+			std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *rit);
+			main.insert(index, *rit);
+		}
+
+		std::vector<int> copy;
+		copy.reserve(_vector.size());
+		for (std::vector<int>::iterator it = main.begin(); it != main.end(); it++) {
+			_pushBackRange(it, copy, unitSize);
+			// TODO check if it works
+		}
+
+		std::vector<int>::iterator containerIt = _vector.begin();
+		for (std::vector<int>::iterator copyIt = copy.begin(); copyIt != copy.end(); copyIt++) {
+			*containerIt = *copyIt;
+			containerIt++;
+		}
 
 	}
 }
