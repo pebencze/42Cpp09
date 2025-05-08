@@ -159,7 +159,7 @@ void PmergeMe::_sortVector() {
 	end = _vector.end();
 
 	int i = 0;
-	for (std::vector<int>::iterator it = start + unitSize; it != end; it += unitSize) {
+	for (std::vector<int>::iterator it = start; it != end; it += unitSize) {
 		if (it == start || i % 2 == 1)
 			_pushBackRange(it, main, unitSize);
 		else
@@ -173,18 +173,17 @@ void PmergeMe::_sortVector() {
 	// insert using Jacobsthal numbers;
 
 	if (pend.empty())
-		return ;
-	if (pend.size() == 1) {
+		;
+	else if (pend.size() == 1) {
 		// perform binary search
 		std::vector<int>::iterator index = std::lower_bound(main.begin(), main.end(), pend[0]);
 		main.insert(index, pend[0]);
-		return ;
 	} else {
 		// perform binary search using Jacobsthal numbers
 		int insertionsDone = 0;
-		for (int n = 2;;n++) {
+		for (int n = 3;;n++) {
 			int currJacobsthal = _jacobsthalRecursive(n);
-			int prevJacobsthal = _jacobsthalRecursive(currJacobsthal - 1);
+			int prevJacobsthal = _jacobsthalRecursive(n - 1);
 			int areaOfSearch = currJacobsthal + insertionsDone;
 			int NbOfInsertions = currJacobsthal - prevJacobsthal;
 			if ((int)pend.size() < NbOfInsertions)
@@ -236,5 +235,5 @@ int PmergeMe::_jacobsthalRecursive(int n) {
 		return 0;
 	if (n == 1)
 		return 1;
-	return _jacobsthalRecursive(n - 1) + 2 * _jacobsthalRecursive(n - 2);
+	return (_jacobsthalRecursive(n - 1) + 2 * _jacobsthalRecursive(n - 2));
 }
