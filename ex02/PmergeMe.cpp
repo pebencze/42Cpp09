@@ -133,7 +133,7 @@ void PmergeMe::_sortVector() {
 	if (unitSize > (int)_vector.size() / 2) // base case
 		return ;
 
-	bool isOdd = unitCount % 2;
+	int isOdd = unitCount % 2;
 
 	std::vector<int>::iterator start = _vector.begin();
 	int sizeWithoutLeftover = (unitCount * unitSize) - (isOdd * unitSize);
@@ -148,7 +148,7 @@ void PmergeMe::_sortVector() {
 	}
 	unitSize *= 2;
 	// recursion
-	// _sortVector();
+	_sortVector();
 	unitSize /= 2;
 
 	// create sequences
@@ -160,13 +160,28 @@ void PmergeMe::_sortVector() {
 
 	int i = 0;
 	for (std::vector<int>::iterator it = start; it != end; it += unitSize) {
+		if (std::distance(it, end) < unitSize) {
+			break; // Not enough elements left for a full range
+		}
 		if (it == start || i % 2 == 1)
 			_pushBackRange(it, main, unitSize);
 		else
 			_pushBackRange(it, pend, unitSize);
 		i++;
 	}
-	// TODO check if odd, add last element to pend
+
+	if (isOdd) {
+		_pushBackRange(end - unitSize, pend, unitSize);
+	}
+
+	// std::vector<int>::iterator it = _vector.begin();
+	// for (int i = 0; i < unitCount; i++) {
+	// 	if (i == 0 || i % 2 == 1)
+	// 		_pushBackRange(it, main, unitSize);
+	// 	else
+	// 		_pushBackRange(it, pend, unitSize);
+	// 	it += unitSize;
+	// }
 
 	std::cout << "main: " << main << std::endl;
 	std::cout << "pend: " << pend << std::endl;
@@ -205,6 +220,7 @@ void PmergeMe::_sortVector() {
 			int areaOfSearch = main.size() - insertionsDone - 1; // TODO maybe add plus 1 for odd element
 			std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *rit);
 			main.insert(index, *rit);
+			insertionsDone++;
 		}
 
 		std::vector<int> copy;
