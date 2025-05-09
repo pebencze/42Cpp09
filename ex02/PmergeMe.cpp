@@ -128,7 +128,8 @@ void PmergeMe::_swapPairs(int distance, std::vector<int>::iterator offset) {
 
 void PmergeMe::_sortVector() {
 	static int unitSize = 1;
-	// dividing into pairs (merge)
+
+	// DIVIDE INTO PAIRS
 	int unitCount = _vector.size() / unitSize;
 	if (unitSize > (int)_vector.size() / 2) // base case
 		return ;
@@ -151,19 +152,13 @@ void PmergeMe::_sortVector() {
 	_sortVector();
 	unitSize /= 2;
 
-	// create sequences
+	// CREATE SEQUENCES
 	std::vector<int> main; // smallest + all larger
 	std::vector<int> pend; // all smaller + odd element
 
-	start = _vector.begin();
-	end = _vector.end();
-
 	int i = 0;
 	for (std::vector<int>::iterator it = start; it != end; it += unitSize) {
-		if (std::distance(it, end) < unitSize) {
-			break; // Not enough elements left for a full range
-		}
-		if (it == start || i % 2 == 1)
+		if (i == 0 || i % 2 == 1)
 			_pushBackRange(it, main, unitSize);
 		else
 			_pushBackRange(it, pend, unitSize);
@@ -171,29 +166,17 @@ void PmergeMe::_sortVector() {
 	}
 
 	if (isOdd) {
-		_pushBackRange(end - unitSize, pend, unitSize);
+		_pushBackRange(end, pend, unitSize);
 	}
 
-	// std::vector<int>::iterator it = _vector.begin();
-	// for (int i = 0; i < unitCount; i++) {
-	// 	if (i == 0 || i % 2 == 1)
-	// 		_pushBackRange(it, main, unitSize);
-	// 	else
-	// 		_pushBackRange(it, pend, unitSize);
-	// 	it += unitSize;
-	// }
+	std::cout << "unitsize: "  << unitSize << " main: " << main << std::endl;
+	std::cout << "unitsize: "  << unitSize << " pend: " << pend << std::endl;
 
-	std::cout << "main: " << main << std::endl;
-	std::cout << "pend: " << pend << std::endl;
-	// insert using Jacobsthal numbers;
-
+	// INSERT
 	if (pend.empty())
 		;
-	else if (pend.size() == 1) {
-		// perform binary search
-		std::vector<int>::iterator index = std::lower_bound(main.begin(), main.end(), pend[0]);
-		main.insert(index, pend[0]);
-	} else {
+	else
+	{
 		// perform binary search using Jacobsthal numbers
 		int insertionsDone = 0;
 		for (int n = 3;;n++) {
@@ -207,39 +190,44 @@ void PmergeMe::_sortVector() {
 			while (insertionsDone < NbOfInsertions) {
 				std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *pendIterator);
 				main.insert(index, *pendIterator);
+				pendIterator = pend.erase(pendIterator);
 				pendIterator--;
-				pend.erase(pendIterator + 1);
 				insertionsDone++;
+				if (index - main.begin() == currJacobsthal + insertionsDone)
+					areaOfSearch -= 1;
 			}
 		}
 
-		// if not jacobsthal, use binary search in reverse order
+		// if pend size is smaller than Jacobsthal, use binary search in reverse order
 		insertionsDone = 0;
 		for (std::vector<int>::reverse_iterator rit = pend.rbegin(); rit != pend.rend(); rit++) {
 			// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
-			int areaOfSearch = main.size() - insertionsDone - 1; // TODO maybe add plus 1 for odd element
+			int areaOfSearch = main.size() - insertionsDone - 1 + isOdd; // TODO maybe add plus 1 for odd element
 			std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *rit);
 			main.insert(index, *rit);
+			// pend.erase(rit.base() - 1);
 			insertionsDone++;
 		}
+	}
+	std::vector<int> copy;
+	copy.reserve(_vector.size());
+	for (std::vector<int>::iterator it = main.begin(); it != main.end(); it += unitSize) {
+		_pushBackRange(it, copy, unitSize);
+		// TODO check if it works
+	}
+	// if (isOdd) {
+	// 	std::vector<int>::iterator it = main.end() - unitSize;
+	// 	_pushBackRange(it, copy, unitSize);
+	// }
 
-		std::vector<int> copy;
-		copy.reserve(_vector.size());
-		for (std::vector<int>::iterator it = main.begin(); it != main.end(); it++) {
-			_pushBackRange(it, copy, unitSize);
-			// TODO check if it works
-		}
-
-		std::vector<int>::iterator containerIt = _vector.begin();
-		for (std::vector<int>::iterator copyIt = copy.begin(); copyIt != copy.end(); copyIt++) {
-			*containerIt = *copyIt;
-			containerIt++;
-		}
-
+	std::vector<int>::iterator containerIt = _vector.begin();
+	for (std::vector<int>::iterator copyIt = copy.begin(); copyIt != copy.end(); copyIt++) {
+		*containerIt = *copyIt;
+		containerIt++;
 	}
 }
 
-void PmergeMe::_pushBackRange(std::vector<int>::iterator start, std::vector<int>& vec, int unitSize) {
+void PmergeMe::_pushBackRange(std::vector<int>::iterator &start, std::vector<int>& vec, int unitSize) {
 	std::vector<int>::iterator end = start + unitSize;
 	for (std::vector<int>::iterator it = start; it != end; it++) {
 		vec.push_back(*it);
