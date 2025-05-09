@@ -165,7 +165,20 @@ void PmergeMe::_sortVector() {
 		i++;
 	}
 
-	if (isOdd) {
+	// for (std::vector<int>::iterator it = start; it < end; it += unitSize * 2) {
+	// 	std::vector<int>::iterator first = it;
+	// 	std::vector<int>::iterator second = it + unitSize;
+	// 	if (*(second + unitSize - 1) > *(first + unitSize - 1)) {
+	// 		_pushBackRange(first, pend, unitSize);
+	// 		_pushBackRange(second, main, unitSize);
+	// 	} else {
+	// 		_pushBackRange(first, main, unitSize);
+	// 		_pushBackRange(second, pend, unitSize);
+	// 	}
+	// }
+
+
+	if (isOdd && std::distance(end - unitSize, _vector.end()) >= unitSize) {
 		_pushBackRange(end, pend, unitSize);
 	}
 
@@ -203,28 +216,13 @@ void PmergeMe::_sortVector() {
 		for (std::vector<int>::reverse_iterator rit = pend.rbegin(); rit != pend.rend(); rit++) {
 			// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
 			int areaOfSearch = main.size() - insertionsDone - 1 + isOdd; // TODO maybe add plus 1 for odd element
-			std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *rit);
+			std::vector<int>::iterator index = std::lower_bound(main.begin(), main.begin() + areaOfSearch, *rit);
 			main.insert(index, *rit);
 			// pend.erase(rit.base() - 1);
 			insertionsDone++;
 		}
 	}
-	std::vector<int> copy;
-	copy.reserve(_vector.size());
-	for (std::vector<int>::iterator it = main.begin(); it != main.end(); it += unitSize) {
-		_pushBackRange(it, copy, unitSize);
-		// TODO check if it works
-	}
-	// if (isOdd) {
-	// 	std::vector<int>::iterator it = main.end() - unitSize;
-	// 	_pushBackRange(it, copy, unitSize);
-	// }
-
-	std::vector<int>::iterator containerIt = _vector.begin();
-	for (std::vector<int>::iterator copyIt = copy.begin(); copyIt != copy.end(); copyIt++) {
-		*containerIt = *copyIt;
-		containerIt++;
-	}
+	_vector = main;
 }
 
 void PmergeMe::_pushBackRange(std::vector<int>::iterator &start, std::vector<int>& vec, int unitSize) {
