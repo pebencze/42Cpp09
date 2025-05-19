@@ -24,9 +24,9 @@ class PmergeMe {
         std::deque<int> _deque;
 
         void _parseInput(int argc, char **argv);
-        void _sortVector();
+        void _fordJohnsonVector(std::vector<int>& vec);
+        void __fordJohnsonDeque(std::deque<int>& deq);
 		// void _sort();
-        // void _sortDeque();
 		void _swapPairs(int distance,  std::vector<int>::iterator offset);
 		void _pushBackRange(std::vector<int>::iterator &start, std::vector<int>& vec, int unitSize);
 		int _jacobsthalRecursive(int n);

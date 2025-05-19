@@ -32,25 +32,28 @@ PmergeMe & PmergeMe::operator=(PmergeMe const & rhs) {
 }
 
 void PmergeMe::run() {
-    // vector
+    //1. run algorithm for vector
     std::cout << "Before: " << _vector << std::endl;
-	clock_t start = std::clock();
-    _sortVector();
 
-	clock_t end = std::clock();
+	clock_t start = std::clock();
+    _fordJohnsonVector();
+    clock_t end = std::clock();
+
 	std::cout << "After: " << _vector << std::endl;
 	long cpuMicroSeconds = end - start;
-	std::cout << "Time to process a range of 3000 elements with std::[...]: "<< cpuMicroSeconds << " us." << std::endl;
+	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
 
-    // deque
-	// start = std::clock();
-    //std::cout << "Before: " << _deque << std::endl;
-    // _sortDeque();
-	//
-	// end = std::clock();
-    //std::cout << "After: " << _deque << std::endl;
-	// cpuMicroSeconds = end - start;
-	// std::cout << cpuMicroSeconds << std::endl;
+    //2. run algorithm for deque
+    std::cout << "Before: " << _deque << std::endl;
+
+	start = std::clock();
+    __fordJohnsonDeque();
+    end = std::clock();
+
+	std::cout << "After: " << _deque << std::endl;
+	cpuMicroSeconds = end - start;
+	std::cout << "Time to process a range of " << _deque.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
+
 }
 
 void PmergeMe::_parseInput(int argc, char **argv) {
@@ -71,118 +74,34 @@ void PmergeMe::_parseInput(int argc, char **argv) {
     }
 }
 
-// void PmergeMe::_sortVector() {
-//     // make pairs, sort them
-//     std::vector<std::pair<int, int> > pairs;
-//     for (size_t i = 0; i < (_vector.size() - 1); i += 2) {
-//         std::pair<int,int> newPair = std::make_pair(std::min(_vector[i], _vector[i + 1]), std::max(_vector[i], _vector[i + 1]));
-//         pairs.push_back(newPair);
-//     }
-//     // if size is unequal, add an extra number
-//     if (_vector.size() % 2 == 1) {
-//         // TODO check if it functions with several int maxes -> maybe change to -1
-//         pairs.push_back(std::make_pair(_vector.back(), -1));
-//     }
-
-//     // create clusters for smaller and larger elements
-//     std::vector<int> larger, smaller;
-//     for (size_t i = 0; i < pairs.size(); i++) {
-//         std::pair<int, int> p = pairs[i];
-//         smaller.push_back(p.first);
-//         if (p.second != -1) {
-//             larger.push_back(p.second);
-//         }
-//     }
-
-//     // // sort larger elements
-//     std::sort(larger.begin(), larger.end());
-
-//     // insert smallest element, remove it from the smaller cluster
-//     std::vector<int> sorted;
-//     sorted.push_back(smaller[0]);
-//     smaller.erase(smaller.begin());
-
-//     // insert elements from the clusters into the sorted vector
-//     for (size_t i = 0; i < larger.size(); i++) {
-//         int elem = larger[i];
-//         std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
-//         sorted.insert(index, elem);
-//     }
-//     for (size_t i = 0; i < smaller.size(); i++) {
-//         int elem = smaller[i];
-//         std::vector<int>::iterator index = std::lower_bound(sorted.begin(), sorted.end(), elem);
-//         sorted.insert(index, elem);
-//     }
-
-//     // replace original with sorted vector
-//     _vector = sorted;
-// }
-
-void PmergeMe::_swapPairs(int distance, std::vector<int>::iterator offset) {
-	// swap pairs
-	for (int i = 0; i < distance; i++) {
-		std::swap(*(offset + i), *(offset + distance + i));
-	}
-}
-
-void PmergeMe::_sortVector() {
-	static int unitSize = 1;
-
+void PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
 	// DIVIDE INTO PAIRS
-	int unitCount = _vector.size() / unitSize;
-	if (unitSize > (int)_vector.size() / 2) // base case
-		return ;
+	if (vec.size() < 2)
+        return ;
 
-	int isOdd = unitCount % 2;
+    bool leftover = vec.size() % 2;
+    if (leftover == 1) {
+        vec.push_back(vec.back());
+        vec.pop_back();
+        leftover = 0;
+    }
 
-	std::vector<int>::iterator start = _vector.begin();
-	int sizeWithoutLeftover = (unitCount * unitSize) - (isOdd * unitSize);
-	std::vector<int>::iterator end = _vector.begin() + sizeWithoutLeftover;
 
-	for (std::vector<int>::iterator it = start; it != end; it += (unitSize * 2)) {
-		// sort pairs
-		int rightMostOfPair1 = unitSize - 1;
-		int rightMostOfPair2 = unitSize * 2 - 1;
-		if (*(it + rightMostOfPair1) > *(it + rightMostOfPair2))
-			_swapPairs(unitSize, it);
-	}
-	unitSize *= 2;
+    std::vector<std::pair<int, int>> pairs;
+    for (size_t i = 0; i < vec.size() - 1; i += 2) {
+        int a = vec[i] < vec[i + 1] ? vec[i] : vec[i + 1];
+        int b = vec[i] < vec[i + 1] ? vec[i + 1] : vec[i];
+        pairs.push_back(std::make_pair(a, b));
+    }
 	// recursion
-	_sortVector();
-	unitSize /= 2;
-
+	
 	// CREATE SEQUENCES
-	std::vector<int> main; // smallest + all larger
-	std::vector<int> pend; // all smaller + odd element
+	std::vector<int> smaller; // smallest + all larger
+	std::vector<int> larger; // all smaller + odd element
 
-	int i = 0;
-	for (std::vector<int>::iterator it = start; it != end; it += unitSize) {
-		if (i == 0 || i % 2 == 1)
-			_pushBackRange(it, main, unitSize);
-		else
-			_pushBackRange(it, pend, unitSize);
-		i++;
+	for () {
+		
 	}
-
-	// for (std::vector<int>::iterator it = start; it < end; it += unitSize * 2) {
-	// 	std::vector<int>::iterator first = it;
-	// 	std::vector<int>::iterator second = it + unitSize;
-	// 	if (*(second + unitSize - 1) > *(first + unitSize - 1)) {
-	// 		_pushBackRange(first, pend, unitSize);
-	// 		_pushBackRange(second, main, unitSize);
-	// 	} else {
-	// 		_pushBackRange(first, main, unitSize);
-	// 		_pushBackRange(second, pend, unitSize);
-	// 	}
-	// }
-
-
-	if (isOdd && std::distance(end - unitSize, _vector.end()) >= unitSize) {
-		_pushBackRange(end, pend, unitSize);
-	}
-
-	std::cout << "unitsize: "  << unitSize << " main: " << main << std::endl;
-	std::cout << "unitsize: "  << unitSize << " pend: " << pend << std::endl;
 
 	// INSERT
 	if (pend.empty())
@@ -221,14 +140,7 @@ void PmergeMe::_sortVector() {
 			insertionsDone++;
 		}
 	}
-	_vector = main;
-}
-
-void PmergeMe::_pushBackRange(std::vector<int>::iterator &start, std::vector<int>& vec, int unitSize) {
-	std::vector<int>::iterator end = start + unitSize;
-	for (std::vector<int>::iterator it = start; it != end; it++) {
-		vec.push_back(*it);
-	}
+	_vector = larger;
 }
 
 int PmergeMe::_jacobsthalRecursive(int n) {
