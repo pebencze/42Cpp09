@@ -8,6 +8,14 @@ std::ostream& operator<<(std::ostream& out, const std::vector<int>& rhs) {
 	return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const std::deque<int>& rhs) {
+	std::deque<int>::const_iterator it;
+	for (it = rhs.begin(); it != rhs.end(); it++) {
+		out << *it << " ";
+	}
+	return out;
+}
+
 PmergeMe::PmergeMe() {}
 
 PmergeMe::PmergeMe(int argc, char **argv) {
@@ -36,7 +44,7 @@ void PmergeMe::run() {
     std::cout << "Before: " << _vector << std::endl;
 
 	clock_t start = std::clock();
-    _fordJohnsonVector();
+    _vector = _fordJohnsonVector(_vector);
     clock_t end = std::clock();
 
 	std::cout << "After: " << _vector << std::endl;
@@ -47,7 +55,7 @@ void PmergeMe::run() {
     std::cout << "Before: " << _deque << std::endl;
 
 	start = std::clock();
-    __fordJohnsonDeque();
+    _deque = _fordJohnsonDeque(_deque);
     end = std::clock();
 
 	std::cout << "After: " << _deque << std::endl;
@@ -74,73 +82,164 @@ void PmergeMe::_parseInput(int argc, char **argv) {
     }
 }
 
-void PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
-	// DIVIDE INTO PAIRS
+std::vector<int> PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
+	// DIVIDE INTO PAIRS --------------------------------------------
 	if (vec.size() < 2)
-        return ;
+        return vec;
 
-    bool leftover = vec.size() % 2;
-    if (leftover == 1) {
-        vec.push_back(vec.back());
+    // check if the vector is odd, store leftover
+    bool hasLeftover = vec.size() % 2;
+    int leftover;
+    if (hasLeftover == true) {
+        leftover = vec.back();
         vec.pop_back();
-        leftover = 0;
     }
 
-
-    std::vector<std::pair<int, int>> pairs;
+    // create pairs
+    std::vector<std::pair<int, int> > pairs;
     for (size_t i = 0; i < vec.size() - 1; i += 2) {
         int a = vec[i] < vec[i + 1] ? vec[i] : vec[i + 1];
         int b = vec[i] < vec[i + 1] ? vec[i + 1] : vec[i];
         pairs.push_back(std::make_pair(a, b));
     }
-	// recursion
 	
-	// CREATE SEQUENCES
-	std::vector<int> smaller; // smallest + all larger
-	std::vector<int> larger; // all smaller + odd element
+	// CREATE SEQUENCES ----------------------------------------------
+	std::vector<int> smaller; // all smaller + odd element
+	std::vector<int> larger; // smallest + all larger
 
-	for () {
-		
-	}
+	for (int i = 0; i < (int)pairs.size(); i++) {
+        if (i == 0) {
+            smaller.push_back(pairs[i].first);
+            larger.push_back(pairs[i].second);
+        } else {
+            smaller.push_back(pairs[i].first);
+            larger.push_back(pairs[i].second);
+        }
+    }
+    // recursion
+    larger = _fordJohnsonVector(larger);
 
-	// INSERT
-	if (pend.empty())
-		;
-	else
-	{
-		// perform binary search using Jacobsthal numbers
-		int insertionsDone = 0;
-		for (int n = 3;;n++) {
-			int currJacobsthal = _jacobsthalRecursive(n);
-			int prevJacobsthal = _jacobsthalRecursive(n - 1);
-			int areaOfSearch = currJacobsthal + insertionsDone;
-			int NbOfInsertions = currJacobsthal - prevJacobsthal;
-			if ((int)pend.size() < NbOfInsertions)
-				break; // TODO insert in reverse order
-			std::vector<int>::iterator pendIterator = pend.begin() + NbOfInsertions - 1;
-			while (insertionsDone < NbOfInsertions) {
-				std::vector<int>::iterator index = std::upper_bound(main.begin(), main.begin() + areaOfSearch, *pendIterator);
-				main.insert(index, *pendIterator);
-				pendIterator = pend.erase(pendIterator);
-				pendIterator--;
-				insertionsDone++;
-				if (index - main.begin() == currJacobsthal + insertionsDone)
-					areaOfSearch -= 1;
-			}
-		}
-
-		// if pend size is smaller than Jacobsthal, use binary search in reverse order
-		insertionsDone = 0;
-		for (std::vector<int>::reverse_iterator rit = pend.rbegin(); rit != pend.rend(); rit++) {
-			// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
-			int areaOfSearch = main.size() - insertionsDone - 1 + isOdd; // TODO maybe add plus 1 for odd element
-			std::vector<int>::iterator index = std::lower_bound(main.begin(), main.begin() + areaOfSearch, *rit);
-			main.insert(index, *rit);
-			// pend.erase(rit.base() - 1);
+	// INSERT ---------------------------------------------------------
+	if (smaller.empty())
+		return larger;
+	// perform binary search using Jacobsthal numbers
+	int insertionsDone = 0;
+	for (int n = 3;;n++) {
+		int currJacobsthal = _jacobsthalRecursive(n);
+		int prevJacobsthal = _jacobsthalRecursive(n - 1);
+		int areaOfSearch = currJacobsthal + insertionsDone;
+		int NbOfInsertions = currJacobsthal - prevJacobsthal;
+		if ((int)smaller.size() < NbOfInsertions)
+			break; // TODO insert in reverse order
+        int indexInSmaller = NbOfInsertions - 1;
+		while (insertionsDone < NbOfInsertions) {
+			std::vector<int>::iterator newIndex = std::upper_bound(larger.begin(), larger.begin() + areaOfSearch, smaller[indexInSmaller]);
+			larger.insert(newIndex, smaller[indexInSmaller]);
+            smaller.erase(smaller.begin() + indexInSmaller);
+            indexInSmaller--;
 			insertionsDone++;
+			if (newIndex - larger.begin() == currJacobsthal + insertionsDone)
+				areaOfSearch -= 1;
 		}
 	}
-	_vector = larger;
+	// if pend size is smaller than Jacobsthal, use binary search in reverse order
+	insertionsDone = 0;
+	for (std::vector<int>::reverse_iterator rit = smaller.rbegin(); rit != smaller.rend(); rit++) {
+		// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
+		int areaOfSearch = larger.size() - insertionsDone - 1; // + (hasLeftover ? 1 : 0);
+		std::vector<int>::iterator index = std::lower_bound(larger.begin(), larger.begin() + areaOfSearch, *rit);
+		larger.insert(index, *rit);
+		insertionsDone++;
+	}
+
+    // if there is a leftover, insert it in the right place
+    if (hasLeftover == true) {
+        std::vector<int>::iterator index = std::lower_bound(larger.begin(), larger.end(), leftover);
+        larger.insert(index, leftover);
+    }
+
+	return larger;
+}
+
+
+std::deque<int> PmergeMe::_fordJohnsonDeque(std::deque<int>& deq) {
+	// DIVIDE INTO PAIRS --------------------------------------------
+	if (deq.size() < 2)
+        return deq;
+
+    // check if the vector is odd, store leftover
+    bool hasLeftover = deq.size() % 2;
+    int leftover;
+    if (hasLeftover == true) {
+        leftover = deq.back();
+        deq.pop_back();
+    }
+
+    // create pairs
+    std::deque<std::pair<int, int> > pairs;
+    for (size_t i = 0; i < deq.size() - 1; i += 2) {
+        int a = deq[i] < deq[i + 1] ? deq[i] : deq[i + 1];
+        int b = deq[i] < deq[i + 1] ? deq[i + 1] : deq[i];
+        pairs.push_back(std::make_pair(a, b));
+    }
+	
+	// CREATE SEQUENCES ----------------------------------------------
+	std::deque<int> smaller; // all smaller + odd element
+	std::deque<int> larger; // smallest + all larger
+
+	for (int i = 0; i < (int)pairs.size(); i++) {
+        if (i == 0) {
+            smaller.push_back(pairs[i].first);
+            larger.push_back(pairs[i].second);
+            continue;
+        }
+		smaller.push_back(pairs[i].first);
+		larger.push_back(pairs[i].second);
+	}
+
+    // recursion
+    larger = _fordJohnsonDeque(larger);
+
+	// INSERT ---------------------------------------------------------
+	if (smaller.empty())
+		return larger;
+	// perform binary search using Jacobsthal numbers
+	int insertionsDone = 0;
+	for (int n = 3;;n++) {
+		int currJacobsthal = _jacobsthalRecursive(n);
+		int prevJacobsthal = _jacobsthalRecursive(n - 1);
+		int areaOfSearch = currJacobsthal + insertionsDone;
+		int NbOfInsertions = currJacobsthal - prevJacobsthal;
+		if ((int)smaller.size() < NbOfInsertions)
+			break; // TODO insert in reverse order
+        int indexInSmaller = NbOfInsertions - 1;
+		while (insertionsDone < NbOfInsertions) {
+			std::deque<int>::iterator newIndex = std::upper_bound(larger.begin(), larger.begin() + areaOfSearch, smaller[indexInSmaller]);
+			larger.insert(newIndex, smaller[indexInSmaller]);
+            smaller.erase(smaller.begin() + indexInSmaller);
+            indexInSmaller--;
+			insertionsDone++;
+			if (newIndex - larger.begin() == currJacobsthal + insertionsDone)
+				areaOfSearch -= 1;
+		}
+	}
+	// if pend size is smaller than Jacobsthal, use binary search in reverse order
+	insertionsDone = 0;
+	for (std::deque<int>::reverse_iterator rit = smaller.rbegin(); rit != smaller.rend(); rit++) {
+		// calculate the area of search -> since we are inserting in reverse order we need to shrink the area by the number of insertions already done
+		int areaOfSearch = larger.size() - insertionsDone - 1; // + (hasLeftover ? 1 : 0);
+		std::deque<int>::iterator index = std::lower_bound(larger.begin(), larger.begin() + areaOfSearch, *rit);
+		larger.insert(index, *rit);
+		insertionsDone++;
+	}
+
+    // if there is a leftover, insert it in the right place
+    if (hasLeftover == true) {
+        std::deque<int>::iterator index = std::lower_bound(larger.begin(), larger.end(), leftover);
+        larger.insert(index, leftover);
+    }
+
+	return larger;
 }
 
 int PmergeMe::_jacobsthalRecursive(int n) {
