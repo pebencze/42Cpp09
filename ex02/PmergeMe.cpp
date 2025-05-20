@@ -40,7 +40,7 @@ PmergeMe & PmergeMe::operator=(PmergeMe const & rhs) {
 }
 
 void PmergeMe::run() {
-    //1. run algorithm for vector
+    // 1. run algorithm for vector
     std::cout << "Before: " << _vector << std::endl;
 
 	clock_t start = std::clock();
@@ -51,17 +51,13 @@ void PmergeMe::run() {
 	long cpuMicroSeconds = end - start;
 	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
 
-    //2. run algorithm for deque
-    std::cout << "Before: " << _deque << std::endl;
-
+    // 2. run algorithm for deque
 	start = std::clock();
     _deque = _fordJohnsonDeque(_deque);
     end = std::clock();
 
-	std::cout << "After: " << _deque << std::endl;
 	cpuMicroSeconds = end - start;
-	std::cout << "Time to process a range of " << _deque.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
-
+	std::cout << "Time to process a range of " << _deque.size() << " elements with std::deque: "<< cpuMicroSeconds << " us." << std::endl;
 }
 
 void PmergeMe::_parseInput(int argc, char **argv) {
@@ -88,7 +84,7 @@ std::vector<int> PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
         return vec;
 
     // check if the vector is odd, store leftover
-    bool hasLeftover = vec.size() % 2;
+    bool hasLeftover = vec.size() % 2 == 1;
     int leftover;
     if (hasLeftover == true) {
         leftover = vec.back();
@@ -102,19 +98,19 @@ std::vector<int> PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
         int b = vec[i] < vec[i + 1] ? vec[i + 1] : vec[i];
         pairs.push_back(std::make_pair(a, b));
     }
-	
+
 	// CREATE SEQUENCES ----------------------------------------------
 	std::vector<int> smaller; // all smaller + odd element
 	std::vector<int> larger; // smallest + all larger
 
 	for (int i = 0; i < (int)pairs.size(); i++) {
-        if (i == 0) {
+        // if (i == 0) {
+        //     smaller.push_back(pairs[i].first);
+        //     larger.push_back(pairs[i].second);
+        // } else {
             smaller.push_back(pairs[i].first);
             larger.push_back(pairs[i].second);
-        } else {
-            smaller.push_back(pairs[i].first);
-            larger.push_back(pairs[i].second);
-        }
+        // }
     }
     // recursion
     larger = _fordJohnsonVector(larger);
@@ -122,9 +118,10 @@ std::vector<int> PmergeMe::_fordJohnsonVector(std::vector<int>& vec) {
 	// INSERT ---------------------------------------------------------
 	if (smaller.empty())
 		return larger;
+
 	// perform binary search using Jacobsthal numbers
 	int insertionsDone = 0;
-	for (int n = 3;;n++) {
+	for (int n = 2;;n++) {
 		int currJacobsthal = _jacobsthalRecursive(n);
 		int prevJacobsthal = _jacobsthalRecursive(n - 1);
 		int areaOfSearch = currJacobsthal + insertionsDone;
@@ -182,7 +179,7 @@ std::deque<int> PmergeMe::_fordJohnsonDeque(std::deque<int>& deq) {
         int b = deq[i] < deq[i + 1] ? deq[i + 1] : deq[i];
         pairs.push_back(std::make_pair(a, b));
     }
-	
+
 	// CREATE SEQUENCES ----------------------------------------------
 	std::deque<int> smaller; // all smaller + odd element
 	std::deque<int> larger; // smallest + all larger

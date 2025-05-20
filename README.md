@@ -16,9 +16,7 @@ jacobsthal Sequence:
 ```
 
 ### Steps
-1. Given an unsorted list, group the list into pairs.
-- recursively increase the size of the pairs
-(from 1 elementSize until elementSize <= n / 2)
+1. Given an unsorted list, group the list into n/2 pairs.
 - sort them by the biggest number (rightmost)
 - refer to the biggest element as `a` and to the smallest as `b`
 - depending on the index call them b1 a1 b2 a2 b3 a3 ...
@@ -36,7 +34,6 @@ jacobsthal Sequence:
 
 
 => step 1 is recursive and is combined with step 2 and 3
-![](./steps.webp)
-[URL from 6.5.2025](https://dev.to/emuminov/human-explanation-and-step-by-step-visualisation-of-the-ford-johnson-algorithm-5g91)
 
+Description of the algorithm can be found in "Art Of Computer Programming, Vol.3." on pages 184f.
 
