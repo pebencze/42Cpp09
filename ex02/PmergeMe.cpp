@@ -100,7 +100,7 @@ static std::vector<uint64_t> buildJacobsthalUpTo(size_t limit) {
     return jacobsthal;
 }
 
-/* generate Jacobsthal order for size of B vector plus 2 */
+/* generate Jacobsthal order for size of secondary vector plus 2 */
 static std::vector<size_t> generateInsertionOrderJacobsthal(size_t m) {
     std::vector<size_t> order;
     if (m == 0) return order;
@@ -220,7 +220,7 @@ static std::deque<uint64_t> dequeBuildJacobsthalUpTo(size_t limit) {
     return jacobsthal;
 }
 
-/* generate Jacobsthal order for size of B deque plus 2 */
+/* generate Jacobsthal order for size of secondary deque plus 2 */
 static std::deque<size_t> dequeGenerateInsertionOrderJacobsthal(size_t m) {
     std::deque<size_t> order;
     if (m == 0) return order;
