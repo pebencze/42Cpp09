@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <ctime>
 #include <string.h>
+#include <cassert>
+#include <cstdint>
+#include <cmath>
 
 class PmergeMe {
     public:
@@ -24,9 +27,7 @@ class PmergeMe {
         std::deque<int> _deque;
 
         void _parseInput(int argc, char **argv);
-        std::vector<int> _fordJohnsonVector(std::vector<int>& vec);
-        std::deque<int> _fordJohnsonDeque(std::deque<int>& deq);
-		int _jacobsthalRecursive(int n);
+        void _fordJohnsonVector(std::vector<int>& arr);
 	};
 
 // template <typename Container>
