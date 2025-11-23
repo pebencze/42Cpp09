@@ -28,6 +28,7 @@ class PmergeMe {
 
         void _parseInput(int argc, char **argv);
         void _fordJohnsonVector(std::vector<int>& arr);
+        void _fordJohnsonDeque(std::deque<int>& arr);
 	};
 
 // template <typename Container>

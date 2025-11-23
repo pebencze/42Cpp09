@@ -41,28 +41,28 @@ PmergeMe & PmergeMe::operator=(PmergeMe const & rhs) {
 
 void PmergeMe::run() {
     //1. run algorithm for vector
-    std::cout << "Before: " << _vector << std::endl;
+    std::cout << "\e[0;33mBefore: \e[0m" << _vector << std::endl;
 
 	clock_t start = std::clock();
     _fordJohnsonVector(_vector);
     clock_t end = std::clock();
 
-	std::cout << "After: " << _vector << std::endl;
+	std::cout << "\e[0;33mAfter: \e[0m" << _vector << std::endl;
 	long cpuMicroSeconds = end - start;
-	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
+	std::cout << "\e[0;33mTime to process a range of " << _vector.size() << " elements with std::vector: "<< cpuMicroSeconds << " us.\e[0m" << std::endl;
 	assert(std::is_sorted(_vector.begin(), _vector.end()));
 
-    // //2. run algorithm for deque
-    // std::cout << "Before: " << _deque << std::endl;
+    //2. run algorithm for deque
+    std::cout << "\e[0;35mBefore: \e[0m" << _deque << std::endl;
 
-	// start = std::clock();
-    // _deque = _fordJohnsonDeque(_deque);
-    // end = std::clock();
+	start = std::clock();
+    _fordJohnsonDeque(_deque);
+    end = std::clock();
 
-	// std::cout << "After: " << _deque << std::endl;
-	// cpuMicroSeconds = end - start;
-	// std::cout << "Time to process a range of " << _deque.size() << " elements with std::vector: "<< cpuMicroSeconds << " us." << std::endl;
-	// assert(std::is_sorted(_deque.begin(), _deque.end()));
+	std::cout << "\e[0;35mAfter: \e[0m" << _deque << std::endl;
+	cpuMicroSeconds = end - start;
+	std::cout << "\e[0;35mTime to process a range of " << _deque.size() << " elements with std::deque: "<< cpuMicroSeconds << " us.\e[0m" << std::endl;
+	assert(std::is_sorted(_deque.begin(), _deque.end()));
 }
 
 void PmergeMe::_parseInput(int argc, char **argv) {
@@ -82,6 +82,8 @@ void PmergeMe::_parseInput(int argc, char **argv) {
         _deque.push_back(num);
     }
 }
+
+// ------------- VECTOR VERSION --------------- //
 
 /* creates Jacobsthal order */
 static std::vector<uint64_t> buildJacobsthalUpTo(size_t limit) {
@@ -196,6 +198,126 @@ void PmergeMe::_fordJohnsonVector(std::vector<int>& arr) {
 
     // 5) if there was an unpaired u, insert it too
     if (has_u) binaryInsert(main, unpaired_val);
+
+    // 6) place sorted main back into arr
+    arr = std::move(main);
+}
+
+// ------------- DEQUE VERSION --------------- //
+
+/* creates Jacobsthal order */
+static std::deque<uint64_t> dequeBuildJacobsthalUpTo(size_t limit) {
+    std::deque<uint64_t> jacobsthal;
+    jacobsthal.push_back(0);
+    if (limit == 0) return jacobsthal;
+    jacobsthal.push_back(1);
+    while (jacobsthal.back() < limit) {
+        size_t s = jacobsthal.size();
+        uint64_t next = jacobsthal[s-1] + 2 * jacobsthal[s-2];
+        jacobsthal.push_back(next);
+        if (jacobsthal.size() > 64) break;
+    }
+    return jacobsthal;
+}
+
+/* generate Jacobsthal order for size of B deque plus 2 */
+static std::deque<size_t> dequeGenerateInsertionOrderJacobsthal(size_t m) {
+    std::deque<size_t> order;
+    if (m == 0) return order;
+    std::deque<uint64_t> J = dequeBuildJacobsthalUpTo(m+2);
+    // build blocks by Jacobsthal boundaries
+    int k = (int)J.size() - 1;
+    while (k > 0 && J[k] >= m) --k;
+    for (int r = k+1; r >= 1; --r) {
+        size_t L = (size_t)J[r-1];
+        size_t R = (size_t)std::min<uint64_t>(J[r], m);
+        for (size_t i = L; i < R; ++i) order.push_back(i);
+    }
+    // deduplicate and append missing
+    std::deque<char> seen(m, 0);
+    std::deque<size_t> uniq;
+    for (std::deque<size_t>::const_iterator it = order.begin(); it != order.end(); ++it) {
+        size_t x = *it;
+        if (x < m && !seen[x]) { 
+            uniq.push_back(x); 
+            seen[x]=1; 
+        }
+    };
+    for (size_t i = 0; i < m; ++i) if (!seen[i]) uniq.push_back(i);
+    return uniq;
+}
+
+/* binary insert into deque V */
+void dequeBinaryInsert(std::deque<int>& V, const int& value) {
+    size_t low = 0, high = V.size();
+    while (low < high) {
+        size_t mid = low + (high - low) / 2;
+        if (value < V[mid]) high = mid;
+        else low = mid + 1;
+    }
+    V.insert(V.begin() + low, value);
+}
+
+/* main algorithm for deque */
+void PmergeMe::_fordJohnsonDeque(std::deque<int>& arr) {
+    size_t n = arr.size();
+    if (n <= 1) return;
+    if (n <= 8) { // small sort
+        std::sort(arr.begin(), arr.end());
+        return;
+    }
+
+    // 1) pair and order each pair so b_i <= a_i; collect pairs
+    size_t pairs = n / 2;
+    bool has_unpaired = (n % 2 == 1);
+    std::deque<int> a_list;
+    std::deque<int> b_list;
+    for (size_t i = 0; i < pairs; ++i) {
+        int &x = arr[2*i], &y = arr[2*i + 1];
+        if (x < y) { 
+            b_list.push_back(x); 
+            a_list.push_back(y); 
+        }
+        else       { 
+            b_list.push_back(y); 
+            a_list.push_back(x); 
+        }
+    }
+
+    int unpaired_val; bool has_u = false;
+    if (has_unpaired) { has_u = true; unpaired_val = arr.back(); }
+
+    // 2) build main and secondary arrays
+    // main = [b1, a1, a2, ..., ap]  (b1 + a1...an into main chain)
+    // secondary = [b2, b3, ..., bp] (remaining smalls)
+    std::deque<int> main;
+    std::deque<int> secondary;
+    if (!b_list.empty()) {
+        // promote b1
+        main.push_back(b_list[0]);
+        // push all a_i into main
+        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
+        // push remaining b's to secondary starting from index 1
+        for (size_t i = 1; i < b_list.size(); ++i) secondary.push_back(b_list[i]);
+    } else {
+        // No pairs? shouldn't happen for n>=2, but handle gracefully
+        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
+    }
+
+    // 3) recursively sort main chain using same algorithm
+    _fordJohnsonDeque(main); // sorted main chain
+
+    // 4) insert elements of secondary into main using binary insertion in a given order
+    // insertion order for secondary is Jacobsthal-based
+    std::deque<size_t> order = dequeGenerateInsertionOrderJacobsthal(secondary.size());
+                                    
+    for (std::deque<size_t>::const_iterator it = order.begin(); it != order.end(); ++it) {
+        size_t idx = *it;
+        dequeBinaryInsert(main, secondary[idx]);
+    }
+
+    // 5) if there was an unpaired u, insert it too
+    if (has_u) dequeBinaryInsert(main, unpaired_val);
 
     // 6) place sorted main back into arr
     arr = std::move(main);
