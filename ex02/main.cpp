@@ -14,3 +14,5 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+// command to generate 3000 rand ints ./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
