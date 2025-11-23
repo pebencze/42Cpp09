@@ -87,7 +87,7 @@ void PmergeMe::_parseInput(int argc, char **argv) {
 static std::vector<uint64_t> buildJacobsthalUpTo(size_t limit) {
     std::vector<uint64_t> jacobsthal;
     jacobsthal.push_back(0);
-    if (limit == 0) return J;
+    if (limit == 0) return jacobsthal;
     jacobsthal.push_back(1);
     while (jacobsthal.back() < limit) {
         size_t s = jacobsthal.size();
