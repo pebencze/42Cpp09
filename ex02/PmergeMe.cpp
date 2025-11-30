@@ -158,31 +158,30 @@ void PmergeMe::_fordJohnsonVector(std::vector<int>& arr) {
             b_list.push_back(x); 
             a_list.push_back(y); 
         }
-        else       { 
+        else { 
             b_list.push_back(y); 
             a_list.push_back(x); 
         }
     }
 
-    int unpaired_val; bool has_u = false;
-    if (has_unpaired) { has_u = true; unpaired_val = arr.back(); }
+    int unpaired_val; 
+    bool has_u = false;
+    if (has_unpaired) { 
+        has_u = true; 
+        unpaired_val = arr.back(); 
+    }
 
     // 2) build main and secondary arrays
     // main = [b1, a1, a2, ..., ap]  (b1 + a1...an into main chain)
     // secondary = [b2, b3, ..., bp] (remaining smalls)
     std::vector<int> main; main.reserve(a_list.size() + 1);
     std::vector<int> secondary; secondary.reserve(b_list.size());
-    if (!b_list.empty()) {
-        // promote b1
-        main.push_back(b_list[0]);
-        // push all a_i into main
-        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
-        // push remaining b's to secondary starting from index 1
-        for (size_t i = 1; i < b_list.size(); ++i) secondary.push_back(b_list[i]);
-    } else {
-        // No pairs? shouldn't happen for n>=2, but handle gracefully
-        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
-    }
+    // promote b1
+    main.push_back(b_list[0]);
+    // push all a_i into main
+    for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
+    // push remaining b's to secondary starting from index 1
+    for (size_t i = 1; i < b_list.size(); ++i) secondary.push_back(b_list[i]);
 
     // 3) recursively sort main chain using same algorithm
     _fordJohnsonVector(main); // sorted main chain
@@ -192,8 +191,7 @@ void PmergeMe::_fordJohnsonVector(std::vector<int>& arr) {
     std::vector<size_t> order = generateInsertionOrderJacobsthal(secondary.size());
                                     
     for (std::vector<size_t>::const_iterator it = order.begin(); it != order.end(); ++it) {
-        size_t idx = *it;
-        binaryInsert(main, secondary[idx]);
+        binaryInsert(main, secondary[*it]);
     }
 
     // 5) if there was an unpaired u, insert it too
@@ -220,7 +218,9 @@ static std::deque<uint64_t> dequeBuildJacobsthalUpTo(size_t limit) {
     return jacobsthal;
 }
 
-/* generate Jacobsthal order for size of secondary deque plus 2 */
+/* generate Jacobsthal order for size of secondary deque plus 2 
+e.g.: 11 12 13 14 15 16 17 18 19  |  5 6 7 8 9 10  |  3 4  |  1 2  |  0
+=> insertion order for a deque of 20 indexes */
 static std::deque<size_t> dequeGenerateInsertionOrderJacobsthal(size_t m) {
     std::deque<size_t> order;
     if (m == 0) return order;
@@ -285,25 +285,23 @@ void PmergeMe::_fordJohnsonDeque(std::deque<int>& arr) {
     }
 
     int unpaired_val; bool has_u = false;
-    if (has_unpaired) { has_u = true; unpaired_val = arr.back(); }
+    if (has_unpaired) {
+        has_u = true; 
+        unpaired_val = arr.back(); 
+    }
 
     // 2) build main and secondary arrays
     // main = [b1, a1, a2, ..., ap]  (b1 + a1...an into main chain)
     // secondary = [b2, b3, ..., bp] (remaining smalls)
     std::deque<int> main;
     std::deque<int> secondary;
-    if (!b_list.empty()) {
-        // promote b1
-        main.push_back(b_list[0]);
-        // push all a_i into main
-        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
-        // push remaining b's to secondary starting from index 1
-        for (size_t i = 1; i < b_list.size(); ++i) secondary.push_back(b_list[i]);
-    } else {
-        // No pairs? shouldn't happen for n>=2, but handle gracefully
-        for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
-    }
-
+    // promote b1
+    main.push_back(b_list[0]);
+    // push all a_i into main
+    for (size_t i = 0; i < a_list.size(); ++i) main.push_back(a_list[i]);
+    // push remaining b's to secondary starting from index 1
+    for (size_t i = 1; i < b_list.size(); ++i) secondary.push_back(b_list[i]);
+   
     // 3) recursively sort main chain using same algorithm
     _fordJohnsonDeque(main); // sorted main chain
 
@@ -312,8 +310,7 @@ void PmergeMe::_fordJohnsonDeque(std::deque<int>& arr) {
     std::deque<size_t> order = dequeGenerateInsertionOrderJacobsthal(secondary.size());
                                     
     for (std::deque<size_t>::const_iterator it = order.begin(); it != order.end(); ++it) {
-        size_t idx = *it;
-        dequeBinaryInsert(main, secondary[idx]);
+        dequeBinaryInsert(main, secondary[*it]);
     }
 
     // 5) if there was an unpaired u, insert it too
