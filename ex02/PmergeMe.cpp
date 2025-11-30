@@ -142,8 +142,8 @@ void binaryInsert(std::vector<int>& V, const int& value) {
 void PmergeMe::_fordJohnsonVector(std::vector<int>& arr) {
     size_t n = arr.size();
     if (n <= 1) return;
-    if (n <= 8) { // small sort
-        std::sort(arr.begin(), arr.end());
+    if (n == 2) {
+        if (arr[0] > arr[1]) std::swap(arr[0], arr[1]);
         return;
     }
 
@@ -262,8 +262,8 @@ void dequeBinaryInsert(std::deque<int>& V, const int& value) {
 void PmergeMe::_fordJohnsonDeque(std::deque<int>& arr) {
     size_t n = arr.size();
     if (n <= 1) return;
-    if (n <= 8) { // small sort
-        std::sort(arr.begin(), arr.end());
+    if (n == 2) {
+        if (arr[0] > arr[1]) std::swap(arr[0], arr[1]);
         return;
     }
 
